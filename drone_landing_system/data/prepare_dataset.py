@@ -35,7 +35,12 @@ MAX_SAMPLES = cfg["dataset"].get("max_samples", None)  # None = use all
 # ── Helper: RGB mask → class index mask ─────────────────────────────────────
 def build_color_map(class_csv_path):
     """Build mapping from RGB tuple → class index."""
-    df = pd.read_csv(class_csv_path)
+    # skipinitialspace=True handles column names like " r" instead of "r"
+    df = pd.read_csv(class_csv_path, skipinitialspace=True)
+    
+    # Strip any remaining whitespace from column names just to be safe
+    df.columns = df.columns.str.strip()
+    
     color_map = {}
     for idx, row in df.iterrows():
         rgb = (int(row["r"]), int(row["g"]), int(row["b"]))
