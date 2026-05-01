@@ -29,6 +29,7 @@ IMG_W      = cfg["dataset"]["image_width"]
 VAL_SPLIT  = cfg["dataset"]["val_split"]
 TEST_SPLIT = cfg["dataset"]["test_split"]
 SEED       = cfg["dataset"]["seed"]
+MAX_SAMPLES = cfg["dataset"].get("max_samples", None)  # None = use all
 
 
 # ── Helper: RGB mask → class index mask ─────────────────────────────────────
@@ -68,6 +69,13 @@ def validate_dataset():
     print(f"[INFO] Found {len(images)} images and {len(masks)} masks.")
     assert len(images) > 0, "No images found!"
     assert len(images) == len(masks), "Mismatch between images and masks!"
+
+    # Limit to first N samples if configured
+    if MAX_SAMPLES and MAX_SAMPLES < len(images):
+        images = images[:MAX_SAMPLES]
+        masks  = masks[:MAX_SAMPLES]
+        print(f"[INFO] Limited to first {MAX_SAMPLES} samples (max_samples={MAX_SAMPLES})")
+
     return images, masks
 
 

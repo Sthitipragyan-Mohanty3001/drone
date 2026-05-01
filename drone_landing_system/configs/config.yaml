@@ -26,6 +26,7 @@ dataset:
   val_split:        0.15
   test_split:       0.10
   seed:             42
+  max_samples:      null   # Folder contains only 100 images, use all
 
 # ----- Module 1: Segmentation -----
 segmentation:
