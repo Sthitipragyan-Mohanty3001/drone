@@ -1,0 +1,21 @@
+{
+  "hostile_area": 0.3,
+  "prohibited_zone": 0.1,
+  "mine_region": 0.05,
+  "gunfire_probability": 0.2,
+  "blast_radius": 0.15,
+  "zones": [
+    {
+      "label": "hostile",
+      "x_min": 0.0, "y_min": 0.0,
+      "x_max": 0.3, "y_max": 0.5,
+      "threat_level": 0.9
+    },
+    {
+      "label": "safe_corridor",
+      "x_min": 0.5, "y_min": 0.2,
+      "x_max": 1.0, "y_max": 0.8,
+      "threat_level": 0.1
+    }
+  ]
+}

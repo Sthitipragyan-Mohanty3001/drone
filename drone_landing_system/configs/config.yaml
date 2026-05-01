@@ -1,0 +1,118 @@
+# ============================================================
+# Drone Emergency Landing Zone Prediction System
+# configs/config.yaml
+# ============================================================
+
+# ----- Paths -----
+paths:
+  raw_data:        "data/raw/semantic_drone_dataset"
+  processed_data:  "data/processed"
+  train_images:    "data/processed/train/images"
+  train_masks:     "data/processed/train/masks"
+  val_images:      "data/processed/val/images"
+  val_masks:       "data/processed/val/masks"
+  test_images:     "data/processed/test/images"
+  test_masks:      "data/processed/test/masks"
+  class_dict:      "data/raw/semantic_drone_dataset/class_dict_seg.csv"
+  model_dir:       "models/saved"
+  output_dir:      "outputs"
+  log_dir:         "logs"
+
+# ----- Dataset -----
+dataset:
+  n_classes:        24
+  image_height:     416
+  image_width:      608
+  val_split:        0.15
+  test_split:       0.10
+  seed:             42
+
+# ----- Module 1: Segmentation -----
+segmentation:
+  model:            "resnet50_unet"   # Options: resnet50_unet | vgg_unet | mobilenet_unet | deeplabv3
+  backbone:         "resnet50"
+  epochs:           30
+  batch_size:       4
+  learning_rate:    0.0001
+  optimizer:        "adam"
+  loss:             "categorical_crossentropy"
+  checkpoint_path:  "models/saved/segmentation"
+  pretrained:       true
+
+# ----- Module 2: Weather -----
+weather:
+  model:            "mlp"             # Options: mlp | lstm
+  hidden_layers:    [64, 32, 16]
+  epochs:           50
+  batch_size:       32
+  learning_rate:    0.001
+  dropout:          0.3
+  checkpoint_path:  "models/saved/weather_model.h5"
+  # Input features
+  features:
+    - visibility       # 0–10 km (float)
+    - wind_speed       # m/s (float)
+    - precipitation    # mm/hr (float)
+    - humidity         # % (float)
+    - temperature      # Celsius (float)
+    - fog_index        # 0–1 (float)
+    - smoke_density    # 0–1 (float)
+
+# ----- Module 3: Threat -----
+threat:
+  model:            "geospatial_cnn"  # Options: geospatial_cnn | rule_based
+  epochs:           20
+  batch_size:       8
+  learning_rate:    0.0005
+  checkpoint_path:  "models/saved/threat_model.h5"
+  # Threat factors
+  threat_types:
+    - hostile_area
+    - prohibited_zone
+    - mine_region
+    - gunfire_probability
+    - blast_radius
+
+# ----- Decision Engine -----
+decision_engine:
+  # Risk weights (must sum to 1.0)
+  weights:
+    terrain:  0.50
+    weather:  0.30
+    threat:   0.20
+  # Top N landing zones to return
+  top_n:              3
+  # Minimum safe score threshold
+  min_safe_score:     0.60
+  # Minimum landing zone area (pixels)
+  min_zone_area:      500
+  # Non-Maximum Suppression radius (pixels)
+  nms_radius:         50
+
+# ----- Class Safety Mapping -----
+# 1.0 = fully safe, 0.5 = marginal, 0.0 = unsafe
+class_safety:
+  0:  0.0   # unlabeled
+  1:  1.0   # paved-area
+  2:  0.9   # dirt
+  3:  0.85  # grass
+  4:  0.7   # gravel
+  5:  0.0   # water
+  6:  0.1   # rocks
+  7:  0.0   # pool
+  8:  0.6   # vegetation
+  9:  0.5   # roof
+  10: 0.0   # wall
+  11: 0.0   # window
+  12: 0.0   # door
+  13: 0.0   # fence
+  14: 0.0   # fence-pole
+  15: 0.0   # person
+  16: 0.0   # dog
+  17: 0.0   # car
+  18: 0.0   # bicycle
+  19: 0.4   # roof (alt)
+  20: 0.0   # obstacle
+  21: 0.0   # reserved
+  22: 0.0   # reserved
+  23: 0.0   # reserved
